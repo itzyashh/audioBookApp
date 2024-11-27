@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect } from 'react'
 import { FFmpegKit } from 'ffmpeg-kit-react-native';
 import * as FileSystem from 'expo-file-system';
@@ -7,7 +7,9 @@ import { parseMetadataToJson } from '@/src/utils/fileUtils';
 import { addBook } from '@/src/redux/reducers/Books';
 import { useDispatch, useSelector } from 'react-redux';
 import { prepareBook } from '@/src/utils/bookUtils';
-
+import AntDesign from '@expo/vector-icons/AntDesign';
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import HorizontalBookItem from '@/components/HorizontalBookItem';
 const Page = () => {
 
 
@@ -24,7 +26,7 @@ const Page = () => {
     if (fileExists.exists) console.log('File exists:', fileExists.exists);
 
     await FileSystem.writeAsStringAsync(outputFilePath, '');
-    
+
 
     // run ffmpeg command
     const ffmpegCommand = `-y -i ${fileUri} -f ffmetadata ${outputFilePath}`;
@@ -67,12 +69,46 @@ const Page = () => {
   }, [books]);
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-
+    <View style={styles.container}>
+      <View style={styles.addBox}>
+        <TouchableOpacity onPress={filePicker}
+          style={styles.innerBox}
+        >
+          <View>
+            <Text
+              style={styles.btnTitle}
+            >Import Audiobooks</Text>
+            <Text
+              style={styles.btnSubTitle}
+            >File Type .m4b</Text>
+          </View>
+          <AntDesign name="pluscircle" size={moderateScale(20)} color="#8888ec" />
+        </TouchableOpacity>
+      </View>
+      <FlatList
+        data={books}
+        renderItem={({ item }) => <HorizontalBookItem book={item} />}
+        style={{ padding: scale(10) }}
+        keyExtractor={(item) => item.id}
+      />
     </View>
   )
 }
 
 export default Page
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  addBox: { backgroundColor: '#6363d8', margin: moderateScale(10), borderRadius: moderateScale(10) },
+  innerBox: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: scale(10), paddingHorizontal: moderateScale(20) },
+  btnTitle: { 
+    color: '#fff',
+    fontSize: moderateScale(13),
+   },
+  btnSubTitle: {
+     color: '#b3b3e5',
+      fontSize: moderateScale(10),
+
+     },
+
+})

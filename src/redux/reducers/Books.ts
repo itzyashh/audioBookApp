@@ -1,4 +1,5 @@
 import { Book } from "@/src/types";
+import { copyFile } from "@/src/utils/fileUtils";
 import { createSlice } from "@reduxjs/toolkit";
 
 
@@ -9,6 +10,7 @@ type BooksState = {
 const initialState: BooksState = {
     books: [],
 };
+
 
 const bookSlice = createSlice({
     name: "Book",
@@ -22,6 +24,15 @@ const bookSlice = createSlice({
         },
         removeAllBooks: (state) => {
             state.books = [];
+        },
+        addCover: (state, action) => {
+            state.books = state.books.map((book) => {
+                if (book.id === action.payload.id) {
+                    book.cover = action.payload.cover;
+                }
+                return book;
+            }
+            );
         }
     }
 });

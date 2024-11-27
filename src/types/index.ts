@@ -15,10 +15,12 @@ export type Bookmark = {
 export type Book = {
   id: number;
   title: string;
-  image: string;
   isAudioBook: boolean;
   duration?: string;
   readPercentage?: number;
   chapters?: Chapter[];
   bookmarks?: Bookmark[];
+  cover?: string;
+  artist?: string;
+  composer?: string;
 };

@@ -30,6 +30,11 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
+          headerShown: true,
+          headerTransparent: true,
+          headerSearchBarOptions: {
+            placeholder: 'Search',
+          },
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />

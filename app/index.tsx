@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect } from 'react'
-import { FFmpegKit } from 'ffmpeg-kit-react-native';
+import React, { useCallback, useEffect } from 'react'
+import { FFmpegKit, ReturnCode } from 'ffmpeg-kit-react-native';
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import { parseMetadataToJson } from '@/src/utils/fileUtils';
@@ -10,6 +10,10 @@ import { prepareBook } from '@/src/utils/bookUtils';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import HorizontalBookItem from '@/components/HorizontalBookItem';
+import AudioPlayer from '@/components/AudioPlayer';
+import  FloatingPlayer  from '@/components/FloatingPlayer';
+import TrackPlayer from 'react-native-track-player';
+import { Book } from '@/src/types';
 const Page = () => {
 
 
@@ -20,6 +24,7 @@ const Page = () => {
     // create txt file
     const outputFilePath = `${FileSystem.cacheDirectory}metadata.txt`;
     const outputImagePath = `${FileSystem.cacheDirectory}cover.jpg`;
+    const outputAudioPath = `${FileSystem.cacheDirectory}audio.mp3`;
 
     // check if file exists
     const fileExists = await FileSystem.getInfoAsync(outputFilePath);
@@ -41,7 +46,23 @@ const Page = () => {
     const ffmpegImageCommand = `-y -i ${fileUri} -an -vcodec copy ${outputImagePath}`;
     const imageSession = await FFmpegKit.execute(ffmpegImageCommand);
 
-    const book = await prepareBook(metadataJson, outputImagePath);
+    try {
+      const ffmpegAudioCommand = `-y -i ${fileUri} -vn -ar 44100 -ac 2 -c:a libmp3lame -b:a 192k ${outputAudioPath}`;
+      const audioSession = await FFmpegKit.execute(ffmpegAudioCommand);
+      const returnCode = await audioSession.getReturnCode();
+    
+      if (ReturnCode.isSuccess(returnCode)) {
+        console.log('Audio transcoded successfully to MP3:', outputAudioPath);
+      } else {
+        const logs = await audioSession.getLogsAsString();
+        console.error('FFmpeg MP3 transcoding failed:', logs);
+      }
+    } catch (error) {
+      console.error('Error during MP3 transcoding:', error);
+    }
+    
+
+    const book = await prepareBook(metadataJson, outputImagePath, outputAudioPath);
     dispatch(addBook(book));
 
 
@@ -68,8 +89,12 @@ const Page = () => {
     console.log('books', books);
   }, [books]);
 
+  const onBookPress = useCallback(async (book: Book) => {
+  }, []);
+
   return (
     <View style={styles.container}>
+      <AudioPlayer />
       <View style={styles.addBox}>
         <TouchableOpacity onPress={filePicker}
           style={styles.innerBox}
@@ -87,7 +112,7 @@ const Page = () => {
       </View>
       <FlatList
         data={books}
-        renderItem={({ item }) => <HorizontalBookItem book={item} />}
+        renderItem={({ item }) => <HorizontalBookItem book={item} onItemPress={onBookPress} />}
         style={{ padding: scale(10) }}
         keyExtractor={(item) => item.id}
       />
@@ -108,7 +133,6 @@ const styles = StyleSheet.create({
   btnSubTitle: {
      color: '#b3b3e5',
       fontSize: moderateScale(10),
-
      },
 
 })

@@ -1,21 +1,27 @@
-import { Image, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { Book } from '@/src/types'
-import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { Book } from '@/src/types';
+import { moderateScale } from 'react-native-size-matters';
+import { useDispatch } from 'react-redux';
+import { openBottomSheet } from '@/src/redux/reducers/Drawer';
 type Props = {
     book: Book
+    onItemPress: () => void
 }
 
-const HorizontalBookItem: React.FC<Props> = ({ book }) => {
+const HorizontalBookItem: React.FC<Props> = ({ book, onItemPress }) => {
+
   return (
     <View style={styles.container}>
-        <View style={{ flexDirection: 'row' }}>
+        <Pressable
+        onPress={() => onItemPress(book)}
+         style={{ flexDirection: 'row' }}>
         <Image source={{ uri: book.cover }} style={styles.image} />
         <View style={{ marginLeft: 10 , justifyContent: 'center' }}>
     <Text style={styles.title}>{book.title}</Text>
     <Text style={styles.artist}>{book.artist}</Text>
     </View>
-    </View>
+    </Pressable>
   </View>
   )
 }

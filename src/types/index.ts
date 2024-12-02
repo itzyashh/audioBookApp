@@ -23,4 +23,5 @@ export type Book = {
   cover?: string;
   artist?: string;
   composer?: string;
+  audio?: string;
 };

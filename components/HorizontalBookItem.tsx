@@ -1,7 +1,7 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { Book } from '@/src/types';
-import { moderateScale } from 'react-native-size-matters';
+import { moderateScale, scale } from 'react-native-size-matters';
 import { useDispatch } from 'react-redux';
 import { openBottomSheet } from '@/src/redux/reducers/Drawer';
 type Props = {
@@ -30,23 +30,23 @@ export default HorizontalBookItem
 
 const styles = StyleSheet.create({
     container: {
-        padding: 10,
+        padding: scale(10),
         backgroundColor: '#090917',
-        borderRadius: 10,
+        borderRadius: moderateScale(10),
     },
     image: {
-        width: 60,
-        height: 60,
-        borderRadius: 10,
+        width: moderateScale(60),
+        height: moderateScale(60),
+        borderRadius: moderateScale(10),
     },
     title: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: moderateScale(13),
         fontWeight: 'bold',
         width: moderateScale(200),
     },
     artist: {
         color: '#fff',
-        fontSize: 12,
+        fontSize: moderateScale(11),
     },
 })

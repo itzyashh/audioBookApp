@@ -50,17 +50,26 @@ export const parseMetadataToJson = (metadataContent: string) => {
 };
 
 export const copyFile = async (source: string, id: string, type: 'audio' | 'image') => {
-  // create folder
-  const file = type === 'audio' ? 'audio.mp3' : 'cover.jpg';
-  const destination = `${FileSystem.documentDirectory}/${id}/${file}`;
-  await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}/${id}`)
+  try {
+    // create folder
+    const file = type === 'audio' ? 'audio.aac' : 'cover.jpg';
+    const destination = `${FileSystem.documentDirectory}/${id}/${file}`;
+    // check if directory exists
+    const directoryInfo = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}/${id}`);
+    if (!directoryInfo.exists) {
+      await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}/${id}`)
+    }
 
-  await FileSystem.copyAsync({
-    from: source,
-    to: destination,
-  });
+    await FileSystem.copyAsync({
+      from: source,
+      to: destination,
+    });
 
-  return destination;
+    return destination;
+  } catch (error) {
+    console.error('Error copying file:', error);
+    throw error;
+  }
 }
 
 

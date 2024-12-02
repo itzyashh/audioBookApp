@@ -24,7 +24,7 @@ const Page = () => {
     // create txt file
     const outputFilePath = `${FileSystem.cacheDirectory}metadata.txt`;
     const outputImagePath = `${FileSystem.cacheDirectory}cover.jpg`;
-    const outputAudioPath = `${FileSystem.cacheDirectory}audio.mp3`;
+    const outputAudioPath = `${FileSystem.cacheDirectory}audio.aac`;
 
     // check if file exists
     const fileExists = await FileSystem.getInfoAsync(outputFilePath);
@@ -47,7 +47,10 @@ const Page = () => {
     const imageSession = await FFmpegKit.execute(ffmpegImageCommand);
 
     try {
-      const ffmpegAudioCommand = `-y -i ${fileUri} -vn -ar 44100 -ac 2 -c:a libmp3lame -b:a 192k ${outputAudioPath}`;
+      const ffmpegAudioCommand = `-y -i ${fileUri} -vn -acodec copy ${outputAudioPath}`;
+
+
+
       const audioSession = await FFmpegKit.execute(ffmpegAudioCommand);
       const returnCode = await audioSession.getReturnCode();
     
@@ -74,9 +77,7 @@ const Page = () => {
   };
 
   const filePicker = async () => {
-    const file = await DocumentPicker.getDocumentAsync({
-      copyToCacheDirectory: true,
-    });
+    const file = await DocumentPicker.getDocumentAsync();
 
     if (file.canceled) return;
 
@@ -90,6 +91,17 @@ const Page = () => {
   }, [books]);
 
   const onBookPress = useCallback(async (book: Book) => {
+    console.log('onBookPress', book);
+    await TrackPlayer.reset();
+    await TrackPlayer.add({
+      id: book.id,
+      url: book.audio,
+      title: book.title,
+      artist: book.artist,
+      artwork: book.cover,
+    });
+    await TrackPlayer.play();
+
   }, []);
 
   return (
